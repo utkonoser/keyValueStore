@@ -81,9 +81,9 @@ func initTransactionLog() error {
 	var err error
 	logger, err = NewPostgresTransactionLogger(PostgresDBParams{
 		dbName:   "postgres",
-		host:     "localhost",
+		host:     "192.168.48.2:8080",
 		user:     "postgres",
-		password: "1234qwer",
+		password: "postgrespw",
 	})
 	// logger, err = NewFileTransactionLogger("tmp/transaction.log")
 	if err != nil {
@@ -115,7 +115,8 @@ func initTransactionLog() error {
 func main() {
 	err := initTransactionLog()
 	if err != nil {
-		panic(err)
+		log.Fatal(err.Error())
+		return
 	}
 	r := mux.NewRouter()
 	r.HandleFunc("/v1/{key}", keyValuePutHandler).Methods("PUT")

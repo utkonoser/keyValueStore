@@ -146,9 +146,9 @@ func (l *PostgresTransactionLogger) verifyTableExists() (bool, error) {
 }
 
 func NewPostgresTransactionLogger(config PostgresDBParams) (TransactionLogger, error) {
-	connStr := fmt.Sprintf("host=%s dbname=%s user=%s password=%s",
-		config.host, config.dbName, config.user, config.password)
-
+	connStr := fmt.Sprintf("postgresql://%v:%v@%v?sslmode=disable",
+		config.user, config.password, config.host)
+	// postgres://postgres:postgrespw@postgres:5432
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open db:%w", err)

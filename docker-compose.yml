@@ -1,0 +1,23 @@
+volumes:
+  data:
+
+services:
+  postgres:
+    container_name: postgresKV
+    image: postgres:latest
+    environment:
+      - POSTGRES_PASSWORD=postgrespw
+      - PORT=
+    ports:
+      - 8000:8000
+    volumes:
+      - data:/var/lib/postgresql
+  myapp:
+    container_name: KVStore
+    image: "kvs"
+    ports:
+      - "8080:8080"
+    links:
+      - postgres
+    environment:
+      PORT: 8080
