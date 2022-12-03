@@ -81,7 +81,7 @@ func initTransactionLog() error {
 	var err error
 	logger, err = NewPostgresTransactionLogger(PostgresDBParams{
 		dbName:   "postgres",
-		host:     "localhost",
+		host:     "postgresKV",
 		user:     "postgres",
 		password: "1234qwer",
 	})
@@ -122,5 +122,5 @@ func main() {
 	r.HandleFunc("/v1/{key}", keyValuePutHandler).Methods("PUT")
 	r.HandleFunc("/v1/{key}", keyValueGetHandler).Methods("GET")
 	r.HandleFunc("/v1/{key}", keyValueDeleteHandler).Methods("DELETE")
-	log.Fatal(http.ListenAndServe("localhost:8080", r))
+	log.Fatal(http.ListenAndServe("0.0.0.0:8080", r))
 }

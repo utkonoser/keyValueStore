@@ -2,17 +2,15 @@ volumes:
   data:
 
 services:
-#  postgres:
-#    container_name: postgresKV
-#    image: postgres:latest
-#    environment:
-#      - POSTGRES_PASSWORD=1234qwer
-#      - POSTGRES_DB=postgres
-#      - POSTGRES_USER=postgres
-#    volumes:
-#      - data:/var/lib/postgresql
-#
-#
+  postgres:
+    container_name: postgresKV
+    image: postgres:latest
+    environment:
+      - POSTGRES_PASSWORD=1234qwer
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+    volumes:
+      - data:/var/lib/postgresql
 
   kvs:
     restart: always
@@ -24,9 +22,9 @@ services:
       - "8080:8080"
     extra_hosts:
       - "host.docker.internal:host-gateway"
-#    depends_on:
-#      postgres:
-#        condition: service_started
+    depends_on:
+      postgres:
+        condition: service_started
 
 
 
