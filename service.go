@@ -81,7 +81,7 @@ func initTransactionLog() error {
 	var err error
 	logger, err = NewPostgresTransactionLogger(PostgresDBParams{
 		dbName:   "postgres",
-		host:     "postgresKV",
+		host:     "localhost",
 		user:     "postgres",
 		password: "1234qwer",
 	})
