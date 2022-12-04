@@ -4,9 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	"io"
 	"log"
 	"net/http"
+	"os"
 )
 
 func keyValuePutHandler(w http.ResponseWriter, r *http.Request) {
@@ -79,11 +81,21 @@ var logger TransactionLogger
 
 func initTransactionLog() error {
 	var err error
+
+	err = godotenv.Load()
+	if err != nil {
+		return fmt.Errorf("error loading .env file")
+	}
+	dbName := os.Getenv("DB_NAME")
+	host := os.Getenv("HOST")
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+
 	logger, err = NewPostgresTransactionLogger(PostgresDBParams{
-		dbName:   "postgres",
-		host:     "postgresKV",
-		user:     "postgres",
-		password: "1234qwer",
+		dbName:   dbName,
+		host:     host,
+		user:     user,
+		password: password,
 	})
 	// logger, err = NewFileTransactionLogger("tmp/transaction.log")
 	if err != nil {

@@ -5,10 +5,12 @@ services:
   postgres:
     container_name: postgresKV
     image: postgres:latest
+    env_file:
+      - .env
     environment:
-      - POSTGRES_PASSWORD=1234qwer
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
     volumes:
       - data:/var/lib/postgresql
 
@@ -16,6 +18,8 @@ services:
     restart: always
     container_name: KVStore
     image: kvs:pg
+    env_file:
+      - .env
     build:
       dockerfile: Dockerfile
     ports:
