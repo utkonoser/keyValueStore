@@ -6,6 +6,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"io"
+	"keyValueStore/api"
+	"keyValueStore/logger"
 	"log"
 	"net/http"
 	"os"
@@ -27,12 +29,13 @@ func keyValuePutHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	err = Put(key, string(value))
+
+	err = api.Put(key, string(value))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	logger.WritePut(key, string(value))
+	logger2.WritePut(key, string(value))
 
 	w.WriteHeader(http.StatusCreated)
 
@@ -43,8 +46,8 @@ func keyValueGetHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["key"]
 
-	value, err := Get(key)
-	if errors.Is(ErrorNoSuchKey, err) {
+	value, err := api.Get(key)
+	if errors.Is(api.ErrorNoSuchKey, err) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -66,18 +69,18 @@ func keyValueDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["key"]
 
-	err := Delete(key)
+	err := api.Delete(key)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	logger.WriteDelete(key)
+	logger2.WriteDelete(key)
 	w.WriteHeader(http.StatusOK)
 
 	log.Printf("DELETE key=%s\n", key)
 }
 
-var logger TransactionLogger
+var logger2 logger.TransactionLogger
 
 func initTransactionLog() error {
 	var err error
@@ -91,35 +94,35 @@ func initTransactionLog() error {
 	user := os.Getenv("DB_USER")
 	password := os.Getenv("DB_PASSWORD")
 
-	logger, err = NewPostgresTransactionLogger(PostgresDBParams{
-		dbName:   dbName,
-		host:     host,
-		user:     user,
-		password: password,
+	logger2, err = logger.NewPostgresTransactionLogger(logger.PostgresDBParams{
+		DbName:   dbName,
+		Host:     host,
+		User:     user,
+		Password: password,
 	})
 	// logger, err = NewFileTransactionLogger("tmp/transaction.log")
 	if err != nil {
 		return fmt.Errorf("failed to create event logger: %w", err)
 	}
-	events, errors2 := logger.ReadEvents()
-	count, e, ok := 0, Event{}, true
+	events, errors2 := logger2.ReadEvents()
+	count, e, ok := 0, logger.Event{}, true
 
 	for ok && err == nil {
 		select {
 		case err, ok = <-errors2:
 		case e, ok = <-events:
 			switch e.EventType {
-			case EventDelete:
-				err = Delete(e.Key)
+			case logger.EventDelete:
+				err = api.Delete(e.Key)
 				count++
-			case EventPut:
-				err = Put(e.Key, e.Value)
+			case logger.EventPut:
+				err = api.Put(e.Key, e.Value)
 				count++
 			}
 		}
 	}
 	log.Printf("%d events replayed\n", count)
-	logger.Run()
+	logger2.Run()
 
 	return err
 }

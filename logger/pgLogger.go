@@ -1,4 +1,4 @@
-package main
+package logger
 
 import (
 	"database/sql"
@@ -9,10 +9,10 @@ import (
 )
 
 type PostgresDBParams struct {
-	dbName   string
-	host     string
-	user     string
-	password string
+	DbName   string
+	Host     string
+	User     string
+	Password string
 }
 
 type PostgresTransactionLogger struct {
@@ -144,7 +144,7 @@ func (l *PostgresTransactionLogger) verifyTableExists() (bool, error) {
 
 func NewPostgresTransactionLogger(config PostgresDBParams) (TransactionLogger, error) {
 	connStr := fmt.Sprintf("postgres://%v:%v@%v/%v?sslmode=disable",
-		config.user, config.password, config.host, config.dbName)
+		config.User, config.Password, config.Host, config.DbName)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open db:%w", err)
